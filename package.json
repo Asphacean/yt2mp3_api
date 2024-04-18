@@ -8,5 +8,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "express": "^4.19.2",
+    "fluent-ffmpeg": "^2.1.2",
+    "mysql2": "^3.9.6",
+    "ytdl-core": "^4.11.5"
+  }
 }

@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  youtube-downloader:
+    image: asphacean/api-server-ytdownloader:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./audiofiles:/usr/src/app/audiofiles
+      - ./videofiles:/usr/src/app/videofiles
+    environment:
+      - NODE_ENV=production
+
+volumes:
+  audio_data:
+    driver: local
+  video_data:
+    driver: local
