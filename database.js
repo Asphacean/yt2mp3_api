@@ -2,7 +2,7 @@ const mysql = require('mysql2/promise');
 
 // Создаем пул подключений
 const pool = mysql.createPool({
-    host: 'nasra.li',
+    host: 'localhost',
     user: 'apiuser',
     password: '6Ed3Z0Az7BD1@',
     database: 'youtubemp3',
