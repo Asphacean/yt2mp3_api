@@ -71,6 +71,14 @@ app.get('/download-audio', async (req, res) => {
                         } catch (error) {
                             console.error('Database error on insert:', error);
                         }
+                        // Удаление видеофайла после конвертации
+                        fs.unlink(tempVideoPath, err => {
+                            if (err) {
+                                console.error(`Error removing video file: ${err}`);
+                            } else {
+                                console.log(`Video file ${tempVideoPath} removed successfully.`);
+                            }
+                        });
                     });
                 })
                 .on('error', err => {
