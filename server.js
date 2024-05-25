@@ -4,12 +4,15 @@ const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
 const db = require('./database');
+const cors = require('cors'); // импортируем пакет cors
 const app = express();
 const PORT = 3000;
 const AUDIO_DIR = path.join(__dirname, 'audiofiles');
 const VIDEO_DIR = path.join(__dirname, 'videofiles');
 
-// Проверяем и создаем директорию для аудио и видео файлов
+// Используем cors middleware
+app.use(cors());
+
 if (!fs.existsSync(AUDIO_DIR)) {
     fs.mkdirSync(AUDIO_DIR, { recursive: true });
 }
@@ -27,7 +30,7 @@ app.get('/download-audio', async (req, res) => {
     }
 
     try {
-        // Проверяем наличие видео URL в базе данных
+        // Чекаем бд на наличие файла
         const existingFiles = await db.query(
             'SELECT file_name FROM downloads WHERE video_url = ?',
             [videoUrl]
@@ -59,6 +62,7 @@ app.get('/download-audio', async (req, res) => {
             ffmpeg(tempVideoPath)
                 .output(tempAudioPath)
                 .audioBitrate(192)
+                .audioChannels(2)
                 .on('end', async () => {
                     console.log(`Conversion complete, serving ${tempAudioPath}`);
                     res.download(tempAudioPath, async () => {
@@ -71,7 +75,7 @@ app.get('/download-audio', async (req, res) => {
                         } catch (error) {
                             console.error('Database error on insert:', error);
                         }
-                        // Удаление видеофайла после конвертации
+                        // Удаление видеофайла после конвертации - ChatGPT
                         fs.unlink(tempVideoPath, err => {
                             if (err) {
                                 console.error(`Error removing video file: ${err}`);
