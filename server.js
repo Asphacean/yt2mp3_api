@@ -1,10 +1,10 @@
 const express = require('express');
-const ytdl = require('ytdl-core');
+const ytdl = require('@distube/ytdl-core');
 const ffmpeg = require('fluent-ffmpeg');
 const fs = require('fs');
 const path = require('path');
 const db = require('./database');
-const cors = require('cors'); // импортируем пакет cors
+const cors = require('cors');
 const app = express();
 const PORT = 3000;
 const AUDIO_DIR = path.join(__dirname, 'audiofiles');
@@ -19,6 +19,12 @@ if (!fs.existsSync(AUDIO_DIR)) {
 if (!fs.existsSync(VIDEO_DIR)) {
     fs.mkdirSync(VIDEO_DIR, { recursive: true });
 }
+
+// Загрузите cookies из файла
+const cookies = JSON.parse(fs.readFileSync('cookies.json'));
+
+// Создайте агент с cookies
+const agent = ytdl.createAgent(cookies);
 
 app.get('/download-audio', async (req, res) => {
     const videoUrl = req.query.url;
@@ -53,9 +59,13 @@ app.get('/download-audio', async (req, res) => {
     console.log(`Downloading video to ${tempVideoPath}`);
     ytdl(videoUrl, {
         quality: 'highest',
-        filter: format => format.container === 'mp4' && format.hasAudio
+        filter: format => format.hasAudio && format.hasVideo
     })
         .pipe(fs.createWriteStream(tempVideoPath))
+        .on('error', (err) => {
+            console.error('Error during video download:', err);
+            res.status(500).send('Failed to download video');
+        })
         .on('finish', () => {
             console.log(`Video downloaded to ${tempVideoPath}`);
             console.log(`Converting video to audio at ${tempAudioPath}`);
@@ -75,7 +85,7 @@ app.get('/download-audio', async (req, res) => {
                         } catch (error) {
                             console.error('Database error on insert:', error);
                         }
-                        // Удаление видеофайла после конвертации - ChatGPT
+                        // Удаление видеофайла после конвертации
                         fs.unlink(tempVideoPath, err => {
                             if (err) {
                                 console.error(`Error removing video file: ${err}`);
@@ -90,10 +100,6 @@ app.get('/download-audio', async (req, res) => {
                     res.status(500).send('Audio conversion failed');
                 })
                 .run();
-        })
-        .on('error', err => {
-            console.error('Error downloading video:', err);
-            res.status(500).send('Video download failed');
         });
 });
 
