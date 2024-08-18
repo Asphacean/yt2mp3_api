@@ -1,14 +1,14 @@
 const mysql = require('mysql2/promise');
 
-// Создаем пул подключений
+// Получаем данные для подключения из переменных окружения
 const pool = mysql.createPool({
-    host: 'nasra.li',
-    user: 'apiuser',
-    password: '6Ed3Z0Az7BD1@',
-    database: 'youtubemp3',
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'test',
     waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+    connectionLimit: process.env.DB_CONNECTION_LIMIT || 10,
+    queueLimit: process.env.DB_QUEUE_LIMIT || 0
 });
 
 // Функция для выполнения запросов к базе данных
