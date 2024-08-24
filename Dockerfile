@@ -1,6 +1,9 @@
 # Указываем базовый образ
 FROM node:18-alpine
 
+# Установка ffmpeg
+RUN apk add --no-cache ffmpeg
+
 # Устанавливаем рабочую директорию
 WORKDIR /app
 

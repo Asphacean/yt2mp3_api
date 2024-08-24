@@ -10,9 +10,9 @@ const PORT = 3000;
 const AUDIO_DIR = path.join(__dirname, 'audiofiles');
 const VIDEO_DIR = path.join(__dirname, 'videofiles');
 
+// Используем cors middleware
 app.use(cors());
 
-// Создаем директории, если они не существуют
 if (!fs.existsSync(AUDIO_DIR)) {
     fs.mkdirSync(AUDIO_DIR, { recursive: true });
 }
@@ -20,51 +20,20 @@ if (!fs.existsSync(VIDEO_DIR)) {
     fs.mkdirSync(VIDEO_DIR, { recursive: true });
 }
 
-// Загружаем cookies, если файл существует
-let agent;
-const cookiesPath = path.join(__dirname, 'cookies.json');
-if (fs.existsSync(cookiesPath)) {
-    const cookies = JSON.parse(fs.readFileSync(cookiesPath, 'utf8'));
-    agent = ytdl.createAgent(cookies);
-    console.log('Cookies loaded successfully.');
-} else {
-    console.warn('Warning: cookies.json not found. Proceeding without cookies.');
-}
+// Загрузите cookies из файла
+const cookies = JSON.parse(fs.readFileSync('cookies.json'));
 
-// Функция для нормализации URL
-function normalizeYouTubeUrl(url) {
-    const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    if (regex.test(url)) {
-        try {
-            const urlObj = new URL(url);
-            if (urlObj.hostname === 'youtu.be') {
-                // Преобразование короткого URL в формат с v=
-                const videoId = urlObj.pathname.slice(1);
-                return `https://www.youtube.com/watch?v=${videoId}`;
-            }
-            return url;
-        } catch (err) {
-            console.error('Invalid URL format:', err);
-        }
-    }
-    return null;
-}
+// Создайте агент с cookies
+const agent = ytdl.createAgent(cookies);
 
 app.get('/download-audio', async (req, res) => {
-    let videoUrl = req.query.url;
-
-    // Нормализация URL
-    videoUrl = normalizeYouTubeUrl(videoUrl);
-    if (!videoUrl) {
-        return res.status(400).send('Invalid YouTube URL');
-    }
-
-    // Проверка валидности URL
-    if (!ytdl.validateURL(videoUrl)) {
-        return res.status(400).send('Invalid YouTube URL');
-    }
-
+    const videoUrl = req.query.url;
     const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+
+    if (!videoUrl) {
+        console.log('No URL provided by client');
+        return res.status(400).send('No URL provided');
+    }
 
     try {
         // Чекаем бд на наличие файла
@@ -90,8 +59,7 @@ app.get('/download-audio', async (req, res) => {
     console.log(`Downloading video to ${tempVideoPath}`);
     ytdl(videoUrl, {
         quality: 'highest',
-        filter: format => format.hasAudio && format.hasVideo,
-        requestOptions: agent ? { agent } : {}  // Используем агент, если он создан
+        filter: format => format.hasAudio && format.hasVideo
     })
         .pipe(fs.createWriteStream(tempVideoPath))
         .on('error', (err) => {

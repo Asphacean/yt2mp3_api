@@ -1,14 +1,22 @@
 const mysql = require('mysql2/promise');
+const fs = require('fs');
+const path = require('path');
 
-// Получаем данные для подключения из переменных окружения
+// Путь к файлу конфигурации базы данных
+const configPath = path.join(__dirname, 'db_config.json');
+
+// Чтение конфигурации из JSON файла
+const dbConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+
+// Создаем пул подключений
 const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'test',
-    waitForConnections: true,
-    connectionLimit: process.env.DB_CONNECTION_LIMIT || 10,
-    queueLimit: process.env.DB_QUEUE_LIMIT || 0
+    host: dbConfig.host,
+    user: dbConfig.user,
+    password: dbConfig.password,
+    database: dbConfig.database,
+    waitForConnections: dbConfig.waitForConnections,
+    connectionLimit: dbConfig.connectionLimit,
+    queueLimit: dbConfig.queueLimit
 });
 
 // Функция для выполнения запросов к базе данных
