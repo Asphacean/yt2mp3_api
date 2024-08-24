@@ -70,7 +70,7 @@ Downloads a YouTube video and converts it to MP3.
 - **FFmpeg Errors:** Ensure that FFmpeg is correctly installed and available in your system's PATH.
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for more details.
+This project is licensed under the MIT License. See the [LICENSE](https://github.com/Asphacean/test_api/blob/main/LICENSE) file for more details.
 
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue to discuss any changes.
