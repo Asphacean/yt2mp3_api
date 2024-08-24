@@ -19,9 +19,11 @@ This project is a Node.js based API that allows you to download and convert YouT
 
 1. **Clone the repository:**
 
-   ```bash
+   ```
+   bash
    git clone https://github.com/Asphacean/test_api.git
-   cd test_api```
+   cd test_api
+   ```
 2. **Install dependencies:**
    ```npm install```
 3. **Set up the database:**
