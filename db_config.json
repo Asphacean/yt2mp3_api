@@ -1,7 +1,7 @@
 {
-  "host": "nasra.li",
+  "host": "example.com",
   "user": "apiuser",
-  "password": "6Ed3Z0Az7BD1@",
+  "password": "6password",
   "database": "youtubemp3",
   "waitForConnections": true,
   "connectionLimit": 10,
